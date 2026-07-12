@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ahmed Fitness">
+<title>Ahmed - Lean Muscle Gain</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#0A0C10;font-family:-apple-system,BlinkMacSystemFont,sans-serif;color:#EDF0F5;overscroll-behavior:none;-webkit-text-size-adjust:100%}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+input[type=number]{-moz-appearance:textfield}
+::-webkit-scrollbar{display:none}
+.tab-btn{padding:8px 12px;font-size:11px;font-weight:600;border:none;cursor:pointer;background:transparent;color:#7A8499;border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0;font-family:inherit}
+.tab-btn.active{color:#C8F135;border-bottom-color:#C8F135}
+.day-btn{padding:9px 20px;font-size:13px;font-weight:700;border:1px solid #242836;cursor:pointer;border-radius:10px;flex-shrink:0;background:#12151C;color:#7A8499;font-family:inherit}
+.day-btn.active{background:#C8F135;color:#0A0C10;border-color:#C8F135}
+.week-btn{min-width:36px;height:36px;font-size:12px;font-weight:700;border:1px solid #242836;cursor:pointer;border-radius:8px;flex-shrink:0;background:#12151C;color:#7A8499;font-family:inherit}
+.week-btn.active{background:#C8F135;color:#0A0C10;border-color:#C8F135}
+.card{background:#191D27;border:1px solid #242836;border-radius:14px;padding:14px 16px}
+.set-input{width:100%;padding:8px 4px;font-size:14px;font-weight:700;text-align:center;background:#0A0C10;border:1px solid #242836;border-radius:8px;color:#C8F135;outline:none;font-family:inherit;-webkit-appearance:none}
+.set-input.reps{color:#4B9EFF}
+.set-input.plates{color:#F5A623}
+.mode-btn{flex:1;padding:8px 4px;font-size:11px;font-weight:600;border:1px solid #242836;cursor:pointer;border-radius:8px;background:#12151C;color:#7A8499;font-family:inherit;text-transform:capitalize}
+.mode-btn.active{background:#C8F135;color:#0A0C10;border-color:#C8F135}
+.mark-btn{flex:1;padding:8px;font-size:11px;font-weight:700;border:none;cursor:pointer;border-radius:8px;background:#C8F135;color:#0A0C10;font-family:inherit}
+.mark-btn.done{background:rgba(200,241,53,0.15);color:#C8F135}
+.show-btn{flex:1;padding:8px;font-size:11px;font-weight:600;border:1px solid #242836;cursor:pointer;border-radius:8px;background:#12151C;color:#7A8499;font-family:inherit}
+.supp-btn{padding:6px 14px;font-size:11px;font-weight:700;border:1px solid #242836;cursor:pointer;border-radius:8px;background:#12151C;color:#7A8499;font-family:inherit}
+.supp-btn.done{color:#9B7FFF;border-color:#9B7FFF;background:rgba(155,127,255,0.1)}
+.take-btn{padding:6px 14px;font-size:11px;font-weight:700;border:1px solid #242836;cursor:pointer;border-radius:8px;background:#12151C;color:#7A8499;font-family:inherit;flex-shrink:0}
+.metric-btn{padding:6px 12px;font-size:11px;font-weight:600;border:1px solid #242836;cursor:pointer;border-radius:8px;flex-shrink:0;white-space:nowrap;background:#12151C;color:#7A8499;font-family:inherit}
+.scroll-x{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.flex{display:flex}
+.flex-col{display:flex;flex-direction:column}
+.between{justify-content:space-between}
+.center{align-items:center}
+.gap6{gap:6px}
+.gap8{gap:8px}
+.gap10{gap:10px}
+.mb8{margin-bottom:8px}
+.mb10{margin-bottom:10px}
+.mb12{margin-bottom:12px}
+.mb14{margin-bottom:14px}
+.mt4{margin-top:4px}
+.mt6{margin-top:6px}
+.mt8{margin-top:8px}
+.mt10{margin-top:10px}
+.muted{color:#7A8499}
+.accent{color:#C8F135}
+.blue{color:#4B9EFF}
+.amber{color:#F5A623}
+.red{color:#FF5A5A}
+.purple{color:#9B7FFF}
+.bold{font-weight:700}
+.wrap{flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+// ─── STORAGE ──────────────────────────────────────────────────────
+const SK='ahmed-scale-v6',LK='ahmed-log-v6',SUK='ahmed-supp-v6',NK='ahmed-nutr-v6';
+function loadJ(k){try{const r=localStorage.getItem(k);return r?JSON.parse(r):{}}catch{return{}}}
+function loadA(k){try{const r=localStorage.getItem(k);return r?JSON.parse(r):[]}catch{return[]}}
+function saveJ(k,d){try{localStorage.setItem(k,JSON.stringify(d))}catch{}}
+
+const logData=loadJ(LK);
+function getLog(key){return logData[key]||''}
+function setLog(key,val){logData[key]=val;saveJ(LK,logData)}
+
+// ─── DATA ─────────────────────────────────────────────────────────
+const WORKOUT=[
+  {day:'A',tag:'UPPER',label:'Push · Tricep · Bicep',exercises:[
+    {name:'Incline DB Press',sets:4,reps:'8–10',muscle:'Chest',note:'45° incline rotator safe. Control eccentric 2s down. Full stretch at bottom.'},
+    {name:'Pull Ups',sets:4,reps:'8–10',muscle:'Back',note:'Pronated wide grip. Dead hang at bottom. Chin clears bar at top. Add weight with belt when easy.',special:true},
+    {name:'Dips',sets:3,reps:'8–10',muscle:'Chest/Tri',note:'Lean forward for chest emphasis. Add weight with belt when bodyweight easy.',special:true},
+    {name:'Hammer Curl DB',sets:3,reps:'10–12',muscle:'Bicep',note:'Neutral grip straight up. Elbows pinned. Targets brachialis which pushes bicep peak higher.'},
+    {name:'Face Pulls',sets:3,reps:'15–20',muscle:'Rear Delt',note:'Sit on floor. Pulley at middle height. Pull rope to face. Elbows HIGH. Hold 2s. Never skip.'},
+    {name:'Tricep Pushdown Rope',sets:3,reps:'12',muscle:'Tricep',note:'Elbows pinned. Spread rope at bottom. Full extension every rep.'},
+    {name:'Incline DB Shrugs',sets:3,reps:'12–15',muscle:'Traps',note:'Lie face down on 45° incline bench. Shrug straight up no rotation.'},
+  ]},
+  {day:'B',tag:'LOWER',label:'Quad Focus',exercises:[
+    {name:'Seated Lateral Raise Machine',sets:3,reps:'12–15',muscle:'Side Delt',note:'Done first while fresh. Pure isolation. Slow tempo.'},
+    {name:'Hack Squat',sets:4,reps:'8',muscle:'Quads',note:'Full depth. Knees track over toes. Control negative.'},
+    {name:'Seated Leg Curl',sets:3,reps:'12',muscle:'Hamstrings',note:'Full stretch at top. Full contraction at bottom. Slow 3s eccentric.'},
+    {name:'Leg Extension',sets:3,reps:'12',muscle:'Quads',note:'Pause 1s at top. Slow eccentric. No momentum.'},
+    {name:'Hip Thrust Machine',sets:4,reps:'10',muscle:'Glutes',note:'Full hip extension. Squeeze glutes hard at top. Chin tucked.'},
+    {name:'Seated Calf Raise',sets:4,reps:'12–15',muscle:'Calves',note:'Full stretch pause 1s. Full contraction pause 1s.'},
+    {name:'Cable Ab Crunch',sets:3,reps:'15',muscle:'Abs',note:'Rope behind head. Crunch elbows to knees. Hold 1s.'},
+  ]},
+  {day:'C',tag:'UPPER',label:'Pull · Chest · Shoulder · Bicep · Tricep',exercises:[
+    {name:'Chin Ups',sets:4,reps:'8–10',muscle:'Back/Bicep',note:'Supinated grip. Dead hang. Chin over bar. Add weight with belt when easy.',special:true},
+    {name:'Flat DB Press',sets:3,reps:'10–12',muscle:'Chest',note:'Stop when arms parallel to floor. Protects rotator cuff. Increase range as shoulder improves.'},
+    {name:'Seated Cable Row',sets:4,reps:'10',muscle:'Back',note:'Narrow V grip. Pull to lower sternum. Squeeze blades 1s. Slow 3s return.'},
+    {name:'Pec Deck',sets:3,reps:'12–15',muscle:'Chest',note:'Full stretch at open. Squeeze hard at closed. Only fly motion — make it count.'},
+    {name:'Shoulder Press Machine',sets:3,reps:'10–12',muscle:'Front Delt',note:'No full lockout. Controlled tempo.'},
+    {name:'Bayesian Curl',sets:3,reps:'10–12',muscle:'Bicep',note:'Single arm. Cable behind body. Lean away slightly. Maximises long head stretch.'},
+    {name:'Overhead Cable Extension',sets:3,reps:'12',muscle:'Tricep',note:'Face away from cable. Arms overhead. Elbows still. Full extension.'},
+  ]},
+  {day:'D',tag:'LOWER',label:'Posterior Focus',exercises:[
+    {name:'Standing Lateral Raise Machine',sets:3,reps:'12–15',muscle:'Side Delt',note:'Different angle from seated Day B. Done fresh before legs.'},
+    {name:'Leg Press',sets:4,reps:'10',muscle:'Quads/Glutes',note:'Wide stance for glutes. Full depth. Control negative.'},
+    {name:'Lying Leg Curl',sets:4,reps:'12',muscle:'Hamstrings',note:'Prone. Full stretch full contraction. Slow eccentric.'},
+    {name:'Hip Adductors + Abductors',sets:2,reps:'15',muscle:'Hips',isSuperset:true,
+      supersetExercises:[
+        {name:'A1 — Hip Adductors',note:'Full ROM. Controlled return. No rest before A2.'},
+        {name:'A2 — Hip Abductors',note:'Full ROM. Controlled return. Rest 60s after pair.'}
+      ]},
+    {name:'45° Calf Raise',sets:4,reps:'12–15',muscle:'Calves',note:'Gymleco machine. Superior stretch vs vertical. Full stretch pause 1s. Full contraction pause 1s.'},
+    {name:'Back Extension',sets:3,reps:'15',muscle:'Erectors/Glutes',note:'No hyperextension at top. Controlled return. Log plates on weight stack.',isPlates:true},
+    {name:'Wrist Flexion + Extension',sets:2,reps:'15',muscle:'Forearms',isSuperset:true,
+      supersetExercises:[
+        {name:'A1 — Wrist Flexion',note:'Standing forearm machine. Palms up. Curl wrists upward. Full ROM. Inner forearm flexors.'},
+        {name:'A2 — Wrist Extension',note:'Standing forearm machine. Palms down. Extend wrists upward. Full ROM. Outer forearm extensors.'}
+      ]},
+  ]},
+];
+
+const SCALE_METRICS=[
+  {key:'weight',label:'Weight',unit:'kg',baseline:'75.0',goodDir:'down',target:71,color:'#C8F135'},
+  {key:'bf',label:'Body Fat',unit:'%',baseline:'23.0',goodDir:'down',target:17,color:'#FF5A5A'},
+  {key:'muscle',label:'Muscle Mass',unit:'kg',baseline:'54.9',goodDir:'up',target:57,color:'#4B9EFF'},
+  {key:'visceral',label:'Visceral Fat',unit:'',baseline:'11',goodDir:'down',target:9,color:'#F5A623'},
+  {key:'water',label:'Body Water',unit:'%',baseline:'52.8',goodDir:'up',target:56,color:'#9B7FFF'},
+  {key:'bmi',label:'BMI',unit:'',baseline:'24.2',goodDir:'down',target:22,color:'#7A8499'},
+  {key:'subcut',label:'Subcutaneous',unit:'%',baseline:'20.2',goodDir:'down',target:15,color:'#F5A623'},
+  {key:'bmr',label:'BMR',unit:'kcal',baseline:'1545',goodDir:'up',target:1750,color:'#4B9EFF'},
+];
+
+const MEALS=[
+  {id:'breakfast',label:'Breakfast',time:'7:00–8:00 AM',kcal:580,protein:34,prep:'10 min',
+   items:[{food:'Whole eggs',weight:'4 eggs · 200g',kcal:280,protein:28},{food:'Sourdough bread',weight:'2 slices · 80g raw',kcal:200,protein:6},{food:'Banana',weight:'1 medium · 120g',kcal:100,protein:0}],
+   note:'Cook eggs any style. Oil spray only no butter. Fixed daily.',suppIds:['fishoil','creatine_am']},
+  {id:'snack1',label:'Snack 1',time:'11:00 AM',kcal:109,protein:11,prep:'1 min',
+   items:[{food:'Nada Greek Yogurt',weight:'160g container',kcal:109,protein:11}],
+   note:'Plain low fat. One full container.',suppIds:[]},
+  {id:'lunch',label:'Lunch',time:'1:00–2:00 PM',kcal:594,protein:46,prep:'20 min',
+   items:[{food:'Protein of choice',weight:'190g raw → 150g cooked',kcal:220,protein:38},{food:'White rice',weight:'90g raw → 250g cooked',kcal:324,protein:6},{food:'Mixed greens',weight:'80g',kcal:20,protein:2},{food:'Olive oil dressing',weight:'1 tbsp · 14g',kcal:120,protein:0},{food:'Lemon juice',weight:'½ lemon',kcal:4,protein:0}],
+   note:'Grill or bake protein. Cook rice from dry. Alternate protein with dinner.',suppIds:['zinc']},
+  {id:'snack2',label:'Snack 2 — Pre Workout',time:'4:00 PM',kcal:230,protein:11,prep:'2 min',
+   items:[{food:'Nada Greek Yogurt',weight:'160g container',kcal:109,protein:11},{food:'Banana',weight:'1 medium · 120g',kcal:100,protein:0},{food:'Honey',weight:'1 tsp · 7g',kcal:21,protein:0}],
+   note:'1–1.5 hours before training. Fast carbs + protein. No almonds before training.',suppIds:[]},
+  {id:'postworkout',label:'Post Workout',time:'7:00–8:00 PM',kcal:332,protein:40,prep:'0 min',
+   items:[{food:'Nada Power Milk',weight:'425ml full bottle',kcal:332,protein:40}],
+   note:'Drink immediately after training. 40g protein + 41g fast carbs.',suppIds:['creatine_pm']},
+  {id:'dinner',label:'Dinner',time:'9:00 PM',kcal:594,protein:46,prep:'20 min',
+   items:[{food:'Protein of choice (alternate)',weight:'190g raw → 150g cooked',kcal:220,protein:38},{food:'Potato',weight:'350g raw → 300g cooked',kcal:280,protein:6},{food:'Mixed greens',weight:'80g',kcal:20,protein:2},{food:'Olive oil dressing',weight:'1 tbsp · 14g',kcal:120,protein:0},{food:'Lemon juice',weight:'½ lemon',kcal:4,protein:0}],
+   note:'Alternate protein from lunch. Boil or roast potatoes.',suppIds:[]},
+];
+
+const PROTEINS=[
+  {name:'🍗 Chicken Breast',raw:'190g raw',cooked:'150g cooked',note:'Cumin paprika garlic · grill or bake · no oil'},
+  {name:'🥩 Beef',raw:'190g raw',cooked:'150g cooked',note:'Lean cut · steak cubes or ground · pan sear'},
+  {name:'🐟 Salmon',raw:'175g raw',cooked:'150g cooked',note:'180°C 15 min · lemon + olive oil · aim 2–3x/week'},
+];
+
+const DAILY_SUPPS=[
+  {id:'fishoil',name:'Fish Oil',when:'With breakfast',color:'#F5A623'},
+  {id:'creatine_am',name:'Creatine 5g',when:'With breakfast',color:'#F5A623'},
+  {id:'zinc',name:'Zinc',when:'After lunch',color:'#4B9EFF'},
+  {id:'creatine_pm',name:'Creatine 5g',when:'With Power Milk',color:'#C8F135'},
+  {id:'magnesium',name:'Magnesium',when:'30 min before sleep',color:'#9B7FFF'},
+  {id:'ashwa',name:'Ashwagandha',when:'30 min before sleep',color:'#9B7FFF'},
+];
+
+const GROCERY=[
+  {cat:'Proteins',color:'#4B9EFF',items:['Chicken breast — 190g raw portions — freeze in bulk','Beef lean cuts — 190g raw per serving','Salmon fillets — 175g raw — aim 2–3x/week','Whole eggs ×28 (4 per day)','Nada Greek Yogurt 160g ×14 (2 per day)','Nada Power Milk 425ml ×7 (1 per day)']},
+  {cat:'Carbs',color:'#C8F135',items:['White rice — 630g (90g raw × 7 days)','Sourdough bread — 14 slices','Potatoes — 2.45kg (350g raw × 7 days)','Bananas ×14 (2 per day)']},
+  {cat:'Fats',color:'#F5A623',items:['Olive oil — 500ml','Honey — small jar']},
+  {cat:'Salad & Veg',color:'#9B7FFF',items:['Mixed greens — 1.12kg (80g × 14 meals)','Lemons ×14','Cherry tomatoes optional','Cucumber optional']},
+  {cat:'Supplements',color:'#7A8499',items:['Vitamin D3 — 50,000 IU weekly Sunday dose','Fish Oil — daily','Creatine Monohydrate — 10g/day (5g morning + 5g post workout)','Zinc — daily','Magnesium — daily','Ashwagandha — daily (monitor G6PD)']},
+  {cat:'Pantry',color:'#7A8499',items:['Cumin paprika garlic powder','Black pepper sea salt','Cooking oil spray','Low-sodium soy sauce']},
+];
+
+const MT={
+  'Chest':'#4B9EFF','Back':'#C8F135','Back/Bicep':'#C8F135','Bicep':'#9B7FFF',
+  'Tricep':'#F5A623','Chest/Tri':'#4B9EFF','Side Delt':'#FF5A5A','Rear Delt':'#FF5A5A',
+  'Front Delt':'#FF5A5A','Traps':'#7A8499','Quads':'#C8F135','Quads/Glutes':'#C8F135',
+  'Glutes':'#C8F135','Hamstrings':'#4B9EFF','Hips':'#9B7FFF','Calves':'#7A8499',
+  'Abs':'#F5A623','Erectors/Glutes':'#C8F135','Forearms':'#7A8499',
+};
+
+// ─── HELPERS ──────────────────────────────────────────────────────
+function todayStr(){return new Date().toISOString().split('T')[0]}
+function isSunday(){return new Date().getDay()===0}
+function nextSundayStr(){
+  const d=new Date();const day=d.getDay();
+  const diff=day===0?7:7-day;d.setDate(d.getDate()+diff);
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+}
+function formatToday(){return new Date().toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long'})}
+function currentMealIdx(){
+  const h=new Date().getHours();
+  if(h<10)return 0;if(h<12)return 1;if(h<15)return 2;if(h<17)return 3;if(h<20)return 4;return 5;
+}
+function mk(d,e,w,s,t){return `d${d}e${e}w${w}s${s}_${t}`}
+function smk(d,e,w,si,s,t){return `ss_d${d}e${e}w${w}_${si}s${s}_${t}`}
+function modeKey(d,e,w){return `mode_d${d}e${e}w${w}`}
+
+// ─── STATE ────────────────────────────────────────────────────────
+let currentTab='overview';
+let currentDay=0;
+let currentWeek=1;
+let expandedEx={};
+let scaleHistory=loadA(SK);
+let suppData=loadJ(SUK);
+let nutrData=loadJ(NK);
+let scaleEditing=false;
+let scaleDraft={};
+let activeMetric='weight';
+let showHistory=false;
+let expandedMeals={};
+
+// ─── RENDER ENGINE ────────────────────────────────────────────────
+function render(){
+  document.getElementById('app').innerHTML=buildApp();
+  attachEvents();
+}
+
+function tag(label,color){
+  return `<span style="font-size:10px;padding:2px 8px;border-radius:6px;background:${color}22;color:${color};font-weight:600">${label}</span>`;
+}
+function card(content,style=''){
+  return `<div class="card" style="${style}">${content}</div>`;
+}
+function divider(){return '<div style="height:1px;background:#242836;margin:10px 0"></div>'}
+function sl(text){return `<div style="font-size:10px;color:#7A8499;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px">${text}</div>`}
+
+// ─── MINI CHART ───────────────────────────────────────────────────
+function miniChart(data,color,baseline){
+  if(!data||data.length<1)return `<div style="height:60px;display:flex;align-items:center;justify-content:center;color:#7A8499;font-size:11px">Log a reading to see chart</div>`;
+  const allVals=[parseFloat(baseline),...data.map(d=>parseFloat(d.val))];
+  const min=Math.min(...allVals)*0.995,max=Math.max(...allVals)*1.005;
+  const range=max-min||1;
+  const W=300,H=70,PAD=10;
+  const pts=[{val:baseline,label:'Start'},...data].map((d,i,arr)=>({
+    x:PAD+(i/Math.max(arr.length-1,1))*(W-PAD*2),
+    y:H-PAD-((parseFloat(d.val)-min)/range)*(H-PAD*2),
+    val:d.val,label:d.label||'Start',
+  }));
+  const pathD=pts.map((p,i)=>`${i===0?'M':'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+  const fillD=`${pathD} L ${pts[pts.length-1].x} ${H} L ${pts[0].x} ${H} Z`;
+  const gid=`g${color.replace('#','')}`;
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:70px">
+    <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0.02"/>
+    </linearGradient></defs>
+    <path d="${fillD}" fill="url(#${gid})"/>
+    <path d="${pathD}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round"/>
+    ${pts.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="3" fill="${i===0?'#7A8499':color}"/>`).join('')}
+    <text x="${pts[0].x}" y="${H-1}" text-anchor="middle" font-size="8" fill="#7A8499">Start</text>
+    ${pts.length>1?`<text x="${pts[pts.length-1].x}" y="${H-1}" text-anchor="middle" font-size="8" fill="${color}">Now</text>`:''}
+  </svg>`;
+}
+
+// ─── PROGRESS RING ────────────────────────────────────────────────
+function progressRing(pct,size,stroke,color){
+  const r=size/2-stroke;
+  const circ=2*Math.PI*r;
+  const offset=circ-(pct/100)*circ;
+  return `<svg width="${size}" height="${size}" style="transform:rotate(-90deg)">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#1E2230" stroke-width="${stroke}"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}"
+      stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
+  </svg>`;
+}
+
+// ─── SCALE TRACKER ────────────────────────────────────────────────
+function getCurrentVals(){
+  if(scaleHistory.length>0)return scaleHistory[scaleHistory.length-1].vals;
+  return Object.fromEntries(SCALE_METRICS.map(s=>[s.key,s.baseline]));
+}
+function getDelta(key,current){
+  const m=SCALE_METRICS.find(x=>x.key===key);
+  const curr=parseFloat(current),base=parseFloat(m.baseline);
+  if(curr===base)return null;
+  const delta=curr-base;
+  const isGood=m.goodDir==='down'?delta<0:delta>0;
+  return{text:(delta>0?'+':'')+delta.toFixed(1),isGood};
+}
+function getStatus(m,val){
+  const v=parseFloat(val),t=m.target;
+  if(m.goodDir==='down')return v<=t?'On track':v<=t*1.1?'Getting there':'Needs work';
+  return v>=t?'On track':v>=t*0.95?'Getting there':'Needs work';
+}
+function getStatusColor(m,val){
+  const v=parseFloat(val),t=m.target;
+  if(m.goodDir==='down')return v<=t?'#C8F135':v<=t*1.1?'#F5A623':'#FF5A5A';
+  return v>=t?'#C8F135':v>=t*0.95?'#F5A623':'#FF5A5A';
+}
+
+function buildScaleTracker(){
+  const vals=getCurrentVals();
+  const sel=SCALE_METRICS.find(m=>m.key===activeMetric);
+  const chartData=scaleHistory.map(h=>({val:h.vals[activeMetric],label:h.date}));
+  const delta=getDelta(activeMetric,vals[activeMetric]);
+  const status=getStatus(sel,vals[activeMetric]);
+  const statusColor=getStatusColor(sel,vals[activeMetric]);
+  const lastDate=scaleHistory.length>0?scaleHistory[scaleHistory.length-1].date:'baseline Day 1';
+
+  let html=`
+  <div class="flex between center mb10">
+    ${sl('Smart scale · '+lastDate)}
+    <button onclick="startScaleEdit()" style="padding:6px 14px;font-size:11px;font-weight:700;border:none;cursor:pointer;border-radius:8px;background:#C8F135;color:#0A0C10;font-family:inherit">+ Log Reading</button>
+  </div>`;
+
+  if(scaleEditing){
+    html+=`<div class="card mb14" style="border-color:#C8F135">
+      <div style="font-size:12px;color:#C8F135;font-weight:700;margin-bottom:12px">Enter new smart scale readings</div>
+      <div class="grid2" style="gap:10px;margin-bottom:14px">
+        ${SCALE_METRICS.map(s=>`
+          <div>
+            <div style="font-size:10px;color:#7A8499;margin-bottom:4px">${s.label}${s.unit&&s.unit!=='kcal'?' ('+s.unit+')':''}</div>
+            <input type="number" step="0.1" id="draft_${s.key}" value="${scaleDraft[s.key]||s.baseline}"
+              style="width:100%;padding:8px 10px;font-size:14px;font-weight:600;background:#12151C;border:1px solid #343A50;border-radius:8px;color:#EDF0F5;outline:none;font-family:inherit">
+          </div>`).join('')}
+      </div>
+      <div class="flex gap8">
+        <button onclick="saveScaleEntry()" style="flex:1;padding:10px;font-size:13px;font-weight:700;border:none;cursor:pointer;border-radius:10px;background:#C8F135;color:#0A0C10;font-family:inherit">Save Reading</button>
+        <button onclick="cancelScaleEdit()" style="flex:1;padding:10px;font-size:13px;font-weight:700;border:1px solid #242836;cursor:pointer;border-radius:10px;background:transparent;color:#7A8499;font-family:inherit">Cancel</button>
+      </div>
+    </div>`;
+  }
+
+  html+=`<div class="scroll-x mb12">
+    ${SCALE_METRICS.map(m=>`<button class="metric-btn${activeMetric===m.key?' active':''}" 
+      onclick="setActiveMetric('${m.key}')"
+      style="${activeMetric===m.key?`background:${m.color};color:#0A0C10;border-color:${m.color}`:''}">${m.label}</button>`).join('')}
+  </div>`;
+
+  html+=`<div class="card mb12" style="border-left:3px solid ${sel.color}">
+    <div class="flex between mb8">
+      <div>
+        <div style="font-size:11px;color:#7A8499;margin-bottom:2px">${sel.label}</div>
+        <div style="font-size:28px;font-weight:700">${vals[activeMetric]}${sel.unit&&sel.unit!=='kcal'?sel.unit:''}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;color:#7A8499;margin-bottom:2px">Baseline: ${sel.baseline}${sel.unit&&sel.unit!=='kcal'?sel.unit:''}</div>
+        <div style="font-size:11px;color:#7A8499;margin-bottom:4px">Target: ${sel.goodDir==='down'?'≤':'≥'}${sel.target}${sel.unit&&sel.unit!=='kcal'?sel.unit:''}</div>
+        ${delta?`<div style="font-size:14px;font-weight:700;color:${delta.isGood?'#C8F135':'#FF5A5A'}">${delta.text}</div>`:''}
+        <div style="font-size:10px;font-weight:600;color:${statusColor};margin-top:2px">${status}</div>
+      </div>
+    </div>
+    ${miniChart(chartData,sel.color,sel.baseline)}
+  </div>`;
+
+  html+=`<div class="grid2 mb12">
+    ${SCALE_METRICS.map(m=>{
+      const v=vals[m.key];
+      const d=getDelta(m.key,v);
+      const sc=getStatusColor(m,v);
+      return `<div class="card" style="padding:10px 12px;border-left:2px solid ${m.color};cursor:pointer" onclick="setActiveMetric('${m.key}')">
+        <div style="font-size:10px;color:#7A8499;margin-bottom:2px">${m.label}</div>
+        <div style="font-size:18px;font-weight:700;color:${activeMetric===m.key?m.color:'#EDF0F5'}">${v}${m.unit&&m.unit!=='kcal'?m.unit:''}</div>
+        <div class="flex between mt4">
+          <span style="font-size:10px;color:${sc};font-weight:600">${getStatus(m,v)}</span>
+          ${d?`<span style="font-size:11px;font-weight:700;color:${d.isGood?'#C8F135':'#FF5A5A'}">${d.text}</span>`:''}
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  if(scaleHistory.length>0){
+    html+=`<div onclick="toggleHistory()" style="cursor:pointer;margin-bottom:6px">${sl((showHistory?'▼':'▶')+' History · '+scaleHistory.length+' readings')}</div>`;
+    if(showHistory){
+      html+=[...scaleHistory].reverse().map(e=>`
+        <div class="card mb6" style="padding:10px 14px">
+          <div class="flex between">
+            <span style="font-size:13px;font-weight:700">${e.date}</span>
+            <div class="flex gap8">
+              <span class="accent" style="font-size:11px">${e.vals.weight}kg</span>
+              <span class="red" style="font-size:11px">${e.vals.bf}% BF</span>
+              <span class="blue" style="font-size:11px">${e.vals.muscle}kg M</span>
+            </div>
+          </div>
+        </div>`).join('');
+    }
+  } else {
+    html+=`<div class="card" style="border-left:3px solid #F5A623">
+      <div style="font-size:12px;color:#7A8499;line-height:1.6">Showing Day 1 baseline. Tap <span class="accent bold">+ Log Reading</span> every 2–4 weeks.</div>
+    </div>`;
+  }
+  return html;
+}
+
+// ─── OVERVIEW ─────────────────────────────────────────────────────
+function buildOverview(){
+  return `
+  <div class="card mb14" style="border-left:3px solid #C8F135;background:#12151C">
+    <div style="font-size:10px;color:#C8F135;font-weight:700;letter-spacing:0.1em;margin-bottom:6px">10-WEEK PROGRAM · AHMED</div>
+    <div style="font-size:24px;font-weight:700;line-height:1.3;margin-bottom:10px">Lean Muscle Gain</div>
+    <div class="flex gap6 wrap">
+      ${['4 days/week','45–60 min','Linear progression','Rotator safe','G6PD safe'].map(t=>`<span style="font-size:11px;padding:3px 10px;border-radius:20px;background:#1E2230;color:#7A8499;font-weight:500">${t}</span>`).join('')}
+    </div>
+  </div>
+
+  ${buildScaleTracker()}
+
+  ${sl('Daily nutrition targets')}
+  <div class="card mb14">
+    <div class="flex between center mb12">
+      <div>
+        <div style="font-size:10px;color:#7A8499;margin-bottom:2px">Daily calories</div>
+        <div style="font-size:36px;font-weight:700;color:#C8F135;letter-spacing:-0.03em">2,439 <span style="font-size:14px;color:#7A8499;font-weight:400">kcal</span></div>
+      </div>
+      <div style="font-size:11px;color:#7A8499;text-align:right">
+        <div>TDEE ~2,753 kcal</div>
+        <div>Deficit ~314 kcal</div>
+        <div style="color:#C8F135;font-weight:600;margin-top:4px">Fat loss + muscle</div>
+      </div>
+    </div>
+    ${divider()}
+    <div class="grid3 mt10">
+      ${[{label:'Protein',val:'185g',sub:'31%',color:'#4B9EFF'},{label:'Carbs',val:'286g',sub:'48%',color:'#C8F135'},{label:'Fats',val:'54g',sub:'20%',color:'#F5A623'}].map(m=>`
+        <div style="background:#12151C;border-radius:10px;padding:10px 12px">
+          <div style="font-size:10px;color:#7A8499;margin-bottom:2px">${m.label}</div>
+          <div style="font-size:20px;font-weight:700;color:${m.color}">${m.val}</div>
+          <div style="font-size:10px;color:#7A8499;margin-top:2px">${m.sub}</div>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  ${sl('Weekly workout split')}
+  <div class="flex-col gap6 mb14">
+    ${[
+      {day:'Day A',label:'Upper — Push · Tricep · Bicep',tag:'UPPER',color:'#4B9EFF'},
+      {day:'Day B',label:'Lower — Quad Focus',tag:'LOWER',color:'#C8F135'},
+      {day:'Rest',label:'Active recovery — 20–30 min walk',tag:'REST',color:'#7A8499'},
+      {day:'Day C',label:'Upper — Pull · Chest · Shoulder · Bicep · Tricep',tag:'UPPER',color:'#4B9EFF'},
+      {day:'Day D',label:'Lower — Posterior Focus',tag:'LOWER',color:'#C8F135'},
+      {day:'Rest ×2',label:'Recovery + band rotator cuff work daily',tag:'REST',color:'#7A8499'},
+    ].map(s=>`<div class="card flex between center" style="padding:10px 14px">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:${s.tag==='REST'?'#7A8499':'#EDF0F5'};margin-bottom:2px">${s.day}</div>
+        <div style="font-size:11px;color:#7A8499">${s.label}</div>
+      </div>
+      ${tag(s.tag,s.color)}
+    </div>`).join('')}
+  </div>
+
+  ${sl('Weekly volume')}
+  <div class="card mb14">
+    ${[{m:'Chest',s:13},{m:'Back',s:15},{m:'Arms',s:25},{m:'Shoulders',s:12},{m:'Legs',s:30},{m:'Calves',s:8},{m:'Core',s:3},{m:'Traps',s:3}].map((v,i,arr)=>`
+      <div style="margin-bottom:${i<arr.length-1?10:0}px">
+        <div class="flex between" style="margin-bottom:4px">
+          <span style="font-size:13px;font-weight:500">${v.m}</span>
+          <span style="font-size:13px;font-weight:700;color:#C8F135">${v.s} sets</span>
+        </div>
+        <div style="height:5px;background:#1E2230;border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${Math.min((v.s/35)*100,100)}%;background:${v.s>=10?'#C8F135':'#4B9EFF'};border-radius:3px"></div>
+        </div>
+      </div>`).join('')}
+  </div>
+
+  ${sl('Supplement schedule')}
+  <div class="card mb14">
+    ${[
+      {time:'Morning with breakfast',supps:['Fish Oil','Creatine 5g'],color:'#F5A623'},
+      {time:'Sunday only — 50,000 IU',supps:['Vitamin D'],color:'#C8F135'},
+      {time:'After lunch',supps:['Zinc'],color:'#4B9EFF'},
+      {time:'Post workout with Power Milk',supps:['Creatine 5g'],color:'#C8F135'},
+      {time:'30 min before sleep',supps:['Magnesium','Ashwagandha'],color:'#9B7FFF'},
+    ].map((s,i,arr)=>`
+      <div style="margin-bottom:${i<arr.length-1?12:0}px">
+        <div style="font-size:10px;color:${s.color};font-weight:700;margin-bottom:4px">${s.time.toUpperCase()}</div>
+        <div class="flex gap6 wrap">
+          ${s.supps.map(sup=>`<span style="font-size:11px;padding:2px 10px;border-radius:20px;background:${s.color}22;color:${s.color};font-weight:500">${sup}</span>`).join('')}
+        </div>
+      </div>`).join('')}
+  </div>
+
+  ${sl('Progression — one rule · 10 weeks')}
+  <div class="card" style="border-left:3px solid #C8F135">
+    <div style="font-size:13px;line-height:1.9;font-weight:500">
+      Hit <span class="accent bold">top rep ALL sets</span> → <span class="accent bold">increase weight</span><br>
+      Hit <span class="amber">middle</span> → <span class="amber">same weight</span><br>
+      <span class="red">Failed bottom rep</span> → <span class="red">reduce weight</span>
+    </div>
+  </div>`;
+}
+
+// ─── WORKOUT ──────────────────────────────────────────────────────
+function getPrevBest(d,e,w){
+  if(w<=1)return null;
+  const ex=WORKOUT[d].exercises[e];
+  if(ex.isPlates){
+    const plates=Array.from({length:ex.sets},(_,s)=>parseFloat(getLog(mk(d,e,w-1,s,'plates'))||0)).filter(Boolean);
+    const reps=Array.from({length:ex.sets},(_,s)=>parseInt(getLog(mk(d,e,w-1,s,'reps'))||0)).filter(Boolean);
+    if(!plates.length)return null;
+    const maxP=Math.max(...plates);const idx=plates.indexOf(maxP);
+    return{bestKg:maxP,bestReps:reps[idx]||0,isPlates:true};
+  }
+  if(ex.special){
+    const prevMode=getLog(modeKey(d,e,w-1))||'bodyweight';
+    if(prevMode==='bodyweight'){
+      const reps=Array.from({length:ex.sets},(_,s)=>parseInt(getLog(mk(d,e,w-1,s,'reps'))||0)).filter(Boolean);
+      return reps.length?{bestReps:Math.max(...reps),bestKg:0,mode:'bodyweight'}:null;
+    } else if(prevMode==='assisted'){
+      const kgs=Array.from({length:ex.sets},(_,s)=>parseFloat(getLog(mk(d,e,w-1,s,'kg'))||0)).filter(Boolean);
+      const reps=Array.from({length:ex.sets},(_,s)=>parseInt(getLog(mk(d,e,w-1,s,'reps'))||0)).filter(Boolean);
+      if(!kgs.length)return null;
+      const minKg=Math.min(...kgs);const idx=kgs.indexOf(minKg);
+      return{bestKg:minKg,bestReps:reps[idx]||0,mode:'assisted'};
+    } else {
+      const kgs=Array.from({length:ex.sets},(_,s)=>parseFloat(getLog(mk(d,e,w-1,s,'kg'))||0)).filter(Boolean);
+      const reps=Array.from({length:ex.sets},(_,s)=>parseInt(getLog(mk(d,e,w-1,s,'reps'))||0)).filter(Boolean);
+      if(!kgs.length)return null;
+      const maxKg=Math.max(...kgs);const idx=kgs.indexOf(maxKg);
+      return{bestKg:maxKg,bestReps:reps[idx]||0,mode:'weighted'};
+    }
+  }
+  const kgs=Array.from({length:ex.sets},(_,s)=>parseFloat(getLog(mk(d,e,w-1,s,'kg'))||0)).filter(Boolean);
+  const reps=Array.from({length:ex.sets},(_,s)=>parseInt(getLog(mk(d,e,w-1,s,'reps'))||0)).filter(Boolean);
+  if(!kgs.length)return null;
+  const maxKg=Math.max(...kgs);const idx=kgs.indexOf(maxKg);
+  return{bestKg:maxKg,bestReps:reps[idx]||0};
+}
+
+function getCurrBest(d,e,w){
+  const ex=WORKOUT[d].exercises[e];
+  const key=ex.isPlates?'plates':'kg';
+  const vals=Array.from({length:ex.sets},(_,s)=>parseFloat(getLog(mk(d,e,w,s,key))||0)).filter(Boolean);
+  const reps=Array.from({length:ex.sets},(_,s)=>parseInt(getLog(mk(d,e,w,s,'reps'))||0)).filter(Boolean);
+  if(!vals.length&&!reps.length)return null;
+  const maxV=vals.length?Math.max(...vals):0;
+  const idx=vals.indexOf(maxV);
+  return{bestKg:maxV,bestReps:reps[idx]||Math.max(...(reps.length?reps:[0]))||0};
+}
+
+function formatPrevRef(prev,ex,mode){
+  if(!prev)return null;
+  if(ex.isPlates)return `Last week: ${prev.bestKg} plates × ${prev.bestReps} reps`;
+  if(ex.special){
+    const m=prev.mode||mode;
+    if(m==='bodyweight')return `Last week: ${prev.bestReps} reps bodyweight`;
+    if(m==='assisted')return `Last week: ${prev.bestKg}kg assist × ${prev.bestReps} reps`;
+    return `Last week: +${prev.bestKg}kg × ${prev.bestReps} reps`;
+  }
+  return `Last week: ${prev.bestKg}kg × ${prev.bestReps} reps`;
+}
+
+function getPRStatus(prev,curr,ex,mode){
+  if(!prev||!curr)return null;
+  if(ex.isPlates){
+    if(curr.bestKg>prev.bestKg)return{type:'weight',label:'Plate PR — more plates!'};
+    if(curr.bestKg===prev.bestKg&&curr.bestReps>prev.bestReps)return{type:'rep',label:'Rep PR — same plates more reps!'};
+    if(curr.bestKg<prev.bestKg)return{type:'down',label:'Below last week'};
+    return{type:'same',label:'Same as last week'};
+  }
+  if(ex.special){
+    if(mode==='bodyweight'){
+      if(curr.bestReps>prev.bestReps)return{type:'rep',label:'Rep PR — more reps bodyweight!'};
+      return null;
+    } else if(mode==='assisted'){
+      if(curr.bestKg<prev.bestKg)return{type:'weight',label:'PR — less assistance needed!'};
+      if(curr.bestKg===prev.bestKg&&curr.bestReps>prev.bestReps)return{type:'rep',label:'Rep PR — same assist more reps!'};
+      return null;
+    } else {
+      if(curr.bestKg>prev.bestKg)return{type:'weight',label:'Weight PR — more weight!'};
+      if(curr.bestKg===prev.bestKg&&curr.bestReps>prev.bestReps)return{type:'rep',label:'Rep PR — same weight more reps!'};
+      return null;
+    }
+  }
+  if(curr.bestKg>prev.bestKg)return{type:'weight',label:'Weight PR — new best!'};
+  if(curr.bestKg===prev.bestKg&&curr.bestReps>prev.bestReps)return{type:'rep',label:'Rep PR — more reps at same weight!'};
+  if(curr.bestKg<prev.bestKg)return{type:'down',label:'Below last week'};
+  return{type:'same',label:'Same as last week'};
+}
+
+function buildSetInputs(d,e,w,ex,mode){
+  const isPlates=ex.isPlates;
+  const isBW=ex.special&&mode==='bodyweight';
+  const isAssisted=ex.special&&mode==='assisted';
+
+  return `<div style="display:grid;grid-template-columns:repeat(${ex.sets},1fr);gap:6px">
+    ${Array.from({length:ex.sets},(_,s)=>{
+      const kgVal=getLog(mk(d,e,w,s,isPlates?'plates':'kg'));
+      const repVal=getLog(mk(d,e,w,s,'reps'));
+      return `<div style="background:#12151C;border-radius:10px;padding:8px 6px">
+        <div style="font-size:9px;color:#7A8499;text-align:center;margin-bottom:6px;font-weight:700">SET ${s+1}</div>
+        ${isBW?'':`<input type="number" placeholder="${isPlates?'plates':isAssisted?'assist':'kg'}"
+          value="${kgVal}" 
+          onblur="saveLog('${mk(d,e,w,s,isPlates?'plates':'kg')}',this.value)"
+          class="set-input${isPlates?' plates':''}"
+          style="margin-bottom:4px">`}
+        <input type="number" placeholder="reps"
+          value="${repVal}"
+          onblur="saveLog('${mk(d,e,w,s,'reps')}',this.value)"
+          class="set-input reps">
+        <div class="flex between mt4" style="padding:0 2px">
+          ${isBW?'<span style="font-size:9px;color:#7A8499;text-align:center;width:100%">reps</span>':`
+          <span style="font-size:9px;color:#7A8499">${isPlates?'plates':isAssisted?'assist':'kg'}</span>
+          <span style="font-size:9px;color:#7A8499">reps</span>`}
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function buildSupersetBlock(d,e,w,ex){
+  const ses=ex.supersetExercises||[];
+  return `<div style="background:#12151C;border-radius:12px;padding:12px;border:1px solid #9B7FFF44">
+    <div style="font-size:10px;color:#9B7FFF;font-weight:700;margin-bottom:10px">SUPERSET — NO REST BETWEEN A1 AND A2 — REST 60s AFTER PAIR</div>
+    ${ses.map((se,si)=>`
+      <div style="margin-bottom:${si<ses.length-1?14:0}px">
+        <div style="font-size:12px;font-weight:700;color:${si===0?'#4B9EFF':'#C8F135'};margin-bottom:8px">${se.name} — ${ex.reps} reps</div>
+        <div style="display:grid;grid-template-columns:repeat(${ex.sets},1fr);gap:6px;margin-bottom:6px">
+          ${Array.from({length:ex.sets},(_,s)=>{
+            const kgVal=getLog(smk(d,e,w,si,s,'kg'));
+            const repVal=getLog(smk(d,e,w,si,s,'reps'));
+            return `<div style="background:#191D27;border-radius:10px;padding:8px 6px">
+              <div style="font-size:9px;color:#7A8499;text-align:center;margin-bottom:6px;font-weight:700">SET ${s+1}</div>
+              <input type="number" placeholder="kg"
+                value="${kgVal}"
+                onblur="saveLog('${smk(d,e,w,si,s,'kg')}',this.value)"
+                class="set-input" style="margin-bottom:4px;color:${si===0?'#4B9EFF':'#C8F135'}">
+              <input type="number" placeholder="reps"
+                value="${repVal}"
+                onblur="saveLog('${smk(d,e,w,si,s,'reps')}',this.value)"
+                class="set-input reps">
+              <div class="flex between mt4" style="padding:0 2px">
+                <span style="font-size:9px;color:#7A8499">kg</span>
+                <span style="font-size:9px;color:#7A8499">reps</span>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+        ${si<ses.length-1?`<div style="font-size:10px;color:#9B7FFF;text-align:center;padding:4px;background:#9B7FFF11;border-radius:6px">immediately into A2 — no rest</div>`:''}
+      </div>`).join('')}
+  </div>`;
+}
+
+function buildWorkout(){
+  const day=WORKOUT[currentDay];
+  return `
+  <div class="scroll-x mb14">
+    ${WORKOUT.map((w,i)=>`<button class="day-btn${currentDay===i?' active':''}" onclick="setDay(${i})">Day ${w.day}</button>`).join('')}
+  </div>
+  <div class="card mb14">
+    <div class="flex between center">
+      <div>
+        ${tag(day.tag,day.tag==='UPPER'?'#4B9EFF':'#C8F135')}
+        <div style="font-size:15px;font-weight:700;margin-top:6px">${day.label}</div>
+        <div style="font-size:11px;color:#7A8499;margin-top:4px">${day.exercises.length} exercises</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:28px;font-weight:700;color:#C8F135">${day.exercises.length}</div>
+        <div style="font-size:10px;color:#7A8499">exercises</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-x mb14">
+    ${Array.from({length:10},(_,i)=>i+1).map(w=>`<button class="week-btn${currentWeek===w?' active':''}" onclick="setWeek(${w})">W${w}</button>`).join('')}
+  </div>
+
+  <div class="card mb14" style="border-left:3px solid #C8F135">
+    <div style="font-size:11px;color:#C8F135;font-weight:700;margin-bottom:2px">Week ${currentWeek} of 10 · Linear Progression</div>
+    <div style="font-size:12px;color:#7A8499">Log weight and reps every set. Tap exercise name for coaching note. Both weight PR and rep PR tracked.</div>
+  </div>
+
+  ${day.exercises.map((ex,j)=>{
+    const isExp=expandedEx[`${currentDay}_${j}`];
+    const mode=getLog(modeKey(currentDay,j,currentWeek))||'bodyweight';
+    const prev=getPrevBest(currentDay,j,currentWeek);
+    const curr=getCurrBest(currentDay,j,currentWeek);
+    const prStatus=getPRStatus(prev,curr,ex,mode);
+    const prevRef=formatPrevRef(prev,ex,mode);
+
+    return `<div class="card mb8" style="border-color:${isExp?'#343A50':'#242836'}">
+      <div onclick="toggleEx(${currentDay},${j})" style="cursor:pointer;margin-bottom:10px">
+        <div class="flex between">
+          <div style="flex:1">
+            <div class="flex center gap6 wrap mb6">
+              <span style="font-size:14px;font-weight:600">${ex.name}</span>
+              ${tag(ex.muscle,MT[ex.muscle]||'#7A8499')}
+              ${ex.isSuperset?tag('SUPERSET','#9B7FFF'):''}
+              ${ex.isPlates?tag('PLATES','#F5A623'):''}
+            </div>
+            <div style="font-size:12px;color:#7A8499">${ex.sets} sets · ${ex.reps} reps${ex.isPlates?' (plates)':''}</div>
+          </div>
+          <div style="font-size:16px;color:#7A8499;margin-left:8px">${isExp?'−':'+'}</div>
+        </div>
+        ${prevRef?`<div style="margin-top:6px;padding:5px 10px;background:#12151C;border-radius:8px;font-size:11px;color:#4B9EFF;font-weight:500">
+          Target to beat: <span style="color:#C8F135;font-weight:700">${prevRef}</span>
+        </div>`:''}
+        ${prStatus?`<div style="margin-top:4px;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;
+          background:${prStatus.type==='weight'?'#C8F13522':prStatus.type==='rep'?'#4B9EFF22':prStatus.type==='down'?'#FF5A5A11':'#1E2230'};
+          color:${prStatus.type==='weight'?'#C8F135':prStatus.type==='rep'?'#4B9EFF':prStatus.type==='down'?'#FF5A5A':'#7A8499'}">
+          ${prStatus.label}
+        </div>`:''}
+      </div>
+
+      ${ex.special?`<div class="flex gap6 mb10">
+        ${['assisted','bodyweight','weighted'].map(m=>`<button class="mode-btn${mode===m?' active':''}" onclick="setMode(${currentDay},${j},${currentWeek},'${m}')">${m}</button>`).join('')}
+      </div>`:''}
+
+      ${ex.isSuperset
+        ?buildSupersetBlock(currentDay,j,currentWeek,ex)
+        :buildSetInputs(currentDay,j,currentWeek,ex,mode)}
+
+      ${isExp?`<div style="margin-top:10px;padding:10px 12px;background:#12151C;border-radius:10px;font-size:12px;color:#7A8499;line-height:1.6">${ex.note}</div>`:''}
+    </div>`;
+  }).join('')}
+
+  <div class="card mt4" style="border-left:3px solid #7A8499">
+    <div style="font-size:11px;color:#7A8499;line-height:1.7">
+      <span style="color:#EDF0F5;font-weight:600">Weight PR:</span> higher weight than last week<br>
+      <span style="color:#EDF0F5;font-weight:600">Rep PR:</span> same weight more reps than last week<br>
+      <span style="color:#EDF0F5;font-weight:600">Back Extension:</span> log number of plates not kg<br>
+      <span style="color:#EDF0F5;font-weight:600">Rest:</span> 90s compounds · 60s isolations
+    </div>
+  </div>`;
+}
+
+// ─── NUTRITION ────────────────────────────────────────────────────
+function isSuppDone(id){return !!suppData[`${todayStr()}_${id}`]}
+function toggleSuppFn(id){
+  const k=`${todayStr()}_${id}`;
+  suppData[k]=!suppData[k];
+  saveJ(SUK,suppData);
+  render();
+}
+function isMealDone(id){return !!nutrData[`${todayStr()}_meal_${id}`]}
+function toggleMealFn(id){
+  const k=`${todayStr()}_meal_${id}`;
+  nutrData[k]=!nutrData[k];
+  saveJ(NK,nutrData);
+  render();
+}
+function isVitDDoneThisWeek(){
+  const d=new Date();const day=d.getDay();
+  const diff=day===0?0:day;
+  const sun=new Date(d);sun.setDate(d.getDate()-diff);
+  const sunStr=sun.toISOString().split('T')[0];
+  return !!suppData[`${sunStr}_vitd`];
+}
+function toggleVitD(){
+  const d=new Date();const day=d.getDay();
+  const diff=day===0?0:day;
+  const sun=new Date(d);sun.setDate(d.getDate()-diff);
+  const sunStr=sun.toISOString().split('T')[0];
+  const k=`${sunStr}_vitd`;
+  suppData[k]=!suppData[k];
+  saveJ(SUK,suppData);
+  render();
+}
+function getVitDWeeksTaken(){
+  let count=0;
+  const d=new Date();
+  // Go back up to 15 weeks to count all taken Sundays
+  for(let i=0;i<15;i++){
+    const check=new Date(d);
+    // Find the Sunday of week i weeks ago
+    const day=check.getDay();
+    const diff=day===0?0:day;
+    check.setDate(d.getDate()-diff-(i*7));
+    const sunStr=check.toISOString().split('T')[0];
+    if(suppData[`${sunStr}_vitd`])count++;
+  }
+  return Math.min(count,10);
+}
+function getSuppStreak(id){
+  let streak=0;const d=new Date();
+  for(let i=0;i<100;i++){
+    const k=`${d.toISOString().split('T')[0]}_${id}`;
+    if(suppData[k]){streak++;d.setDate(d.getDate()-1);}else break;
+  }
+  return streak;
+}
+
+function buildNutrition(){
+  const today=todayStr();
+  const sun=isSunday();
+  const nextSun=nextSundayStr();
+  const totalKcal=MEALS.reduce((a,m)=>a+m.kcal,0);
+  const totalP=MEALS.reduce((a,m)=>a+m.protein,0);
+  const mealsDone=MEALS.filter(m=>isMealDone(m.id)).length;
+  const suppsDone=DAILY_SUPPS.filter(s=>isSuppDone(s.id)).length+(isVitDDoneThisWeek()?1:0);
+  const totalSupps=DAILY_SUPPS.length+1;
+  const mealPct=Math.round((mealsDone/MEALS.length)*100);
+  const suppPct=Math.round((suppsDone/totalSupps)*100);
+  const nextMealIdx=Math.min(currentMealIdx(),MEALS.length-1);
+
+  let html=`
+  <div class="card mb14" style="border-left:3px solid #C8F135">
+    <div style="font-size:12px;color:#C8F135;font-weight:700;margin-bottom:10px">${formatToday()}</div>
+    <div class="flex between center">
+      <div style="text-align:center">
+        ${progressRing(mealPct,60,5,'#C8F135')}
+        <div style="font-size:10px;color:#7A8499;margin-top:4px">Meals</div>
+        <div style="font-size:12px;font-weight:700;color:#C8F135">${mealsDone}/${MEALS.length}</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:28px;font-weight:700;color:#C8F135">${totalKcal}</div>
+        <div style="font-size:11px;color:#7A8499">kcal target</div>
+        <div style="font-size:13px;font-weight:600;color:#4B9EFF">${totalP}g protein</div>
+      </div>
+      <div style="text-align:center">
+        ${progressRing(suppPct,60,5,'#9B7FFF')}
+        <div style="font-size:10px;color:#7A8499;margin-top:4px">Supps</div>
+        <div style="font-size:12px;font-weight:700;color:#9B7FFF">${suppsDone}/${totalSupps}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb14" style="border-left:3px solid #4B9EFF">
+    <div style="font-size:11px;color:#4B9EFF;font-weight:700;margin-bottom:4px">NEXT MEAL</div>
+    <div style="font-size:13px;font-weight:600">${MEALS[nextMealIdx].label}</div>
+    <div style="font-size:11px;color:#7A8499">${MEALS[nextMealIdx].time}</div>
+  </div>
+
+  <div class="card mb14" style="border-left:3px solid #C8F135;background:#12151C">
+    <div style="font-size:11px;color:#C8F135;font-weight:700;margin-bottom:10px">PROTEIN OPTIONS — CHOOSE DAILY</div>
+    ${PROTEINS.map((p,i)=>`
+      <div style="padding-bottom:${i<PROTEINS.length-1?10:0}px;margin-bottom:${i<PROTEINS.length-1?10:0}px;border-bottom:${i<PROTEINS.length-1?'1px solid #1E2230':'none'}">
+        <div class="flex between mb4">
+          <span style="font-size:13px;font-weight:600">${p.name}</span>
+          <span style="font-size:11px;color:#C8F135;font-weight:600">${p.raw}</span>
+        </div>
+        <div style="font-size:11px;color:#7A8499">${p.note}</div>
+      </div>`).join('')}
+  </div>
+
+  ${sl("Today's meals — tap to expand — mark done")}
+  ${MEALS.map((m,idx)=>{
+    const done=isMealDone(m.id);
+    const isNext=idx===nextMealIdx&&!done;
+    const expanded=expandedMeals[m.id];
+    return `<div class="card mb8" style="border-left:3px solid ${done?'#C8F135':isNext?'#4B9EFF':'#242836'}">
+      <div class="flex between mb10">
+        <div style="flex:1">
+          <div class="flex between mb4">
+            <div style="font-size:10px;color:${done?'#C8F135':isNext?'#4B9EFF':'#C8F135'};font-weight:700;letter-spacing:0.08em;text-transform:uppercase">
+              ${m.label}${isNext?' — NEXT':''}${done?' — DONE':''}
+            </div>
+            <div style="font-size:10px;color:#7A8499">${m.time}</div>
+          </div>
+          <div style="font-size:14px;font-weight:600;color:${done?'#7A8499':'#EDF0F5'};text-decoration:${done?'line-through':'none'};margin-bottom:2px">${m.items[0].food}</div>
+          <div style="font-size:11px;color:#7A8499">Prep: ${m.prep}</div>
+        </div>
+        <div style="text-align:right;margin-left:14px;flex-shrink:0">
+          <div style="font-size:18px;font-weight:700">${m.kcal}</div>
+          <div style="font-size:10px;color:#7A8499">kcal</div>
+          <div style="font-size:12px;color:#4B9EFF;margin-top:2px">${m.protein}g P</div>
+        </div>
+      </div>
+      <div class="flex gap8">
+        <button class="show-btn" onclick="toggleMealExpand('${m.id}')">${expanded?'Hide weights':'Show weights'}</button>
+        <button class="mark-btn${done?' done':''}" onclick="toggleMeal('${m.id}')">${done?'✓ Done':'Mark done'}</button>
+      </div>
+      ${expanded?`<div style="margin-top:10px">
+        ${divider()}
+        ${m.items.map((item,j)=>`
+          <div class="flex between" style="padding-bottom:8px;margin-bottom:8px;border-bottom:${j<m.items.length-1?'1px solid #1E2230':'none'}">
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:500">${item.food}</div>
+              <div style="font-size:11px;color:#C8F135;margin-top:2px">${item.weight}</div>
+            </div>
+            <div style="text-align:right;margin-left:12px;flex-shrink:0">
+              <div style="font-size:12px">${item.kcal} kcal</div>
+              ${item.protein>0?`<div style="font-size:11px;color:#4B9EFF">${item.protein}g P</div>`:''}
+            </div>
+          </div>`).join('')}
+        ${m.note?`<div style="padding:8px 10px;background:#12151C;border-radius:8px;font-size:11px;color:#7A8499;line-height:1.6;margin-top:4px">${m.note}</div>`:''}
+        ${m.suppIds&&m.suppIds.length>0?`<div style="margin-top:8px;padding:8px 10px;background:#F5A62311;border-radius:8px">
+          <div style="font-size:10px;color:#F5A623;font-weight:700;margin-bottom:4px">SUPPLEMENTS WITH THIS MEAL</div>
+          <div style="font-size:11px;color:#F5A623">${m.suppIds.map(id=>DAILY_SUPPS.find(s=>s.id===id)?.name||id).join(' · ')}</div>
+        </div>`:''}
+      </div>`:''}
+    </div>`;
+  }).join('')}
+
+  ${sl('Supplement tracker — resets daily')}
+
+  <div class="card mb8" style="border-left:3px solid #C8F135">
+    <div style="font-size:10px;color:#C8F135;font-weight:700;margin-bottom:8px">VITAMIN D — SUNDAY ONLY — 50,000 IU — 10 WEEK LOADING</div>
+    ${(()=>{
+      const weeksTaken=getVitDWeeksTaken();
+      const weeksLeft=10-weeksTaken;
+      const pct=Math.round((weeksTaken/10)*100);
+      return `
+        <div class="flex between center mb8">
+          <div>
+            <div style="font-size:20px;font-weight:700;color:#C8F135">${weeksTaken}<span style="font-size:12px;color:#7A8499;font-weight:400"> / 10 weeks</span></div>
+            <div style="font-size:11px;color:#7A8499">${weeksLeft} weeks remaining in loading phase</div>
+          </div>
+          <div style="text-align:center">
+            ${progressRing(pct,50,4,'#C8F135')}
+            <div style="font-size:9px;color:#7A8499;margin-top:2px">${pct}%</div>
+          </div>
+        </div>
+        <div style="height:4px;background:#1E2230;border-radius:3px;overflow:hidden;margin-bottom:10px">
+          <div style="height:100%;width:${pct}%;background:#C8F135;border-radius:3px;transition:width 0.5s"></div>
+        </div>
+        ${weeksTaken>=10?`<div style="font-size:12px;color:#C8F135;font-weight:700;margin-bottom:8px">Loading phase complete! Switch to maintenance dose.</div>`:''}
+        ${sun?`
+          <div style="font-size:12px;margin-bottom:8px">Today is Sunday — take your weekly dose</div>
+          <button onclick="toggleVitDose()" style="width:100%;padding:10px;font-size:13px;font-weight:700;border:none;cursor:pointer;border-radius:10px;background:${isVitDDoneThisWeek()?'#C8F13522':'#C8F135'};color:${isVitDDoneThisWeek()?'#C8F135':'#0A0C10'};font-family:inherit">
+            ${isVitDDoneThisWeek()?'✓ Taken this week':'Take 50,000 IU now'}
+          </button>`:`
+          <div style="font-size:12px;color:${isVitDDoneThisWeek()?'#C8F135':'#F5A623'};font-weight:600;margin-bottom:4px">
+            ${isVitDDoneThisWeek()?'✓ Taken this week — come back next Sunday':'Not yet taken this week'}
+          </div>
+          <div style="font-size:11px;color:#7A8499">Next dose: Sunday ${nextSun}</div>`}`;
+    })()}
+  </div>
+
+  ${[
+    {time:'Morning with breakfast',color:'#F5A623',ids:['fishoil','creatine_am']},
+    {time:'After lunch',color:'#4B9EFF',ids:['zinc']},
+    {time:'Post workout with Power Milk',color:'#C8F135',ids:['creatine_pm']},
+    {time:'Before sleep — 30 min',color:'#9B7FFF',ids:['magnesium','ashwa']},
+  ].map(group=>`<div class="card mb8" style="border-left:2px solid ${group.color}">
+    <div style="font-size:10px;color:${group.color};font-weight:700;margin-bottom:8px">${group.time.toUpperCase()}</div>
+    <div class="flex-col gap8">
+      ${group.ids.map(id=>{
+        const supp=DAILY_SUPPS.find(s=>s.id===id);
+        if(!supp)return '';
+        const done=isSuppDone(id);
+        const streak=getSuppStreak(id);
+        return `<div class="flex between center">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:500;color:${done?'#7A8499':'#EDF0F5'};text-decoration:${done?'line-through':'none'}">${supp.name}</div>
+            <div style="font-size:10px;color:#7A8499">${supp.when}</div>
+            ${streak>1?`<div style="font-size:10px;color:#F5A623">${streak} day streak 🔥</div>`:''}
+          </div>
+          <button class="take-btn${done?' done':''}" onclick="toggleSupp('${id}')"
+            style="${done?`border-color:${group.color};background:${group.color}22;color:${group.color}`:''}">
+            ${done?'✓ Done':'Take'}
+          </button>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`).join('')}
+
+  <div class="card" style="border-left:3px solid #7A8499">
+    <div style="font-size:11px;color:#7A8499;line-height:1.8">
+      ✓ G6PD safe · No peanuts · No fava beans<br>
+      ✓ All protein weights are RAW uncooked<br>
+      ✓ Rice 90g raw = 250g cooked · Potato 350g raw = 300g cooked<br>
+      ✓ Drink 4L water daily — body water currently LOW<br>
+      ✓ Ashwagandha — monitor for G6PD reaction first 2 weeks
+    </div>
+  </div>`;
+  return html;
+}
+
+// ─── GROCERY ──────────────────────────────────────────────────────
+function buildGrocery(){
+  return `
+  <div class="card mb14" style="border-left:3px solid #C8F135">
+    <div style="font-size:12px;color:#7A8499;line-height:1.6">
+      Weekly quantities · <span style="color:#EDF0F5;font-weight:600">2,439 kcal · 185g protein</span><br>
+      All food weights raw · G6PD safe · No peanuts or fava beans
+    </div>
+  </div>
+  ${GROCERY.map(g=>`
+    <div style="margin-bottom:16px">
+      ${sl(g.cat)}
+      <div class="flex-col gap6">
+        ${g.items.map(item=>`<div class="card flex center gap10" style="padding:10px 14px">
+          <div style="width:6px;height:6px;border-radius:3px;background:${g.color};flex-shrink:0"></div>
+          <span style="font-size:13px">${item}</span>
+        </div>`).join('')}
+      </div>
+    </div>`).join('')}`;
+}
+
+// ─── PROGRESSION ──────────────────────────────────────────────────
+function buildProgression(){
+  const rules=[
+    {range:'8 reps',used:'Hack Squat',rule:'Hit 4×8 clean → increase weight next session',color:'#FF5A5A'},
+    {range:'8–10 reps',used:'Incline DB Press · Pull Ups · Dips · Chin Ups',rule:'Hit 10 all sets → increase weight · reset to 8 reps',color:'#4B9EFF'},
+    {range:'10 reps',used:'Leg Press · Cable Row',rule:'Complete all sets → increase weight',color:'#F5A623'},
+    {range:'10–12 reps',used:'Flat DB Press · Shoulder Press · Hammer Curl · Bayesian Curl',rule:'Hit 12 all sets → increase weight · drop to 10 reps',color:'#C8F135'},
+    {range:'12 reps',used:'Pushdown · Leg Curl · Overhead Extension',rule:'Complete all sets → increase weight',color:'#C8F135'},
+    {range:'12–15 reps',used:'Lateral raises · Calves · Shrugs · Pec Deck',rule:'Hit 15 all sets → increase weight · reset to 12 reps',color:'#9B7FFF'},
+    {range:'15 reps',used:'Ab Crunch · Back Extension · Adductors · Abductors',rule:'Complete all sets → increase weight',color:'#7A8499'},
+    {range:'15–20 reps',used:'Face Pulls',rule:'Hit 20 all sets → increase weight · reset to 15 reps',color:'#7A8499'},
+  ];
+  return `
+  ${sl('The one rule — 10 weeks')}
+  <div class="card mb12" style="border-left:3px solid #C8F135">
+    <div style="font-size:13px;line-height:2;font-weight:500">
+      Hit <span class="accent bold">top of rep range ALL sets</span> with clean form<br>
+      → <span class="accent bold">increase weight</span> next session<br><br>
+      Hit <span class="amber">middle of rep range</span><br>
+      → <span class="amber">keep same weight</span><br><br>
+      <span class="red">Failed bottom rep</span> on any set<br>
+      → <span class="red">reduce weight</span> next session
+    </div>
+  </div>
+
+  ${sl('PR system — two types')}
+  <div class="card mb12" style="border-left:3px solid #C8F135">
+    <div style="font-size:13px;line-height:1.9;font-weight:500">
+      <span class="accent">Weight PR</span> — higher weight than last week<br>
+      <span class="blue">Rep PR</span> — same weight but more reps than last week<br>
+      <span class="muted">Both tracked and shown automatically</span>
+    </div>
+  </div>
+
+  ${sl('Pull Ups · Dips · Chin Ups — special progression')}
+  <div class="card mb12" style="border-left:3px solid #4B9EFF">
+    <div style="font-size:13px;line-height:1.9;font-weight:500">
+      <span class="blue">Assisted:</span> reduce assistance = Weight PR · same assist more reps = Rep PR<br>
+      <span class="accent">Bodyweight:</span> more reps = Rep PR · hit 12 reps all sets → move to weighted<br>
+      <span class="amber">Weighted:</span> more added weight = Weight PR · same weight more reps = Rep PR
+    </div>
+  </div>
+
+  ${sl('By rep range')}
+  ${rules.map(p=>`<div class="card mb8" style="border-left:3px solid ${p.color}">
+    <div class="flex between center mb6">
+      <div style="font-size:14px;font-weight:700;color:${p.color}">${p.range}</div>
+      ${tag('↑ weight',p.color)}
+    </div>
+    <div style="font-size:12px;margin-bottom:4px">${p.rule}</div>
+    <div style="font-size:11px;color:#7A8499">${p.used}</div>
+  </div>`).join('')}
+
+  <div class="card mt8" style="border-left:3px solid #7A8499">
+    <div style="font-size:11px;color:#7A8499;line-height:1.8">
+      <span style="color:#EDF0F5;font-weight:600">Rest:</span> 90s compounds · 60s isolations<br>
+      <span style="color:#EDF0F5;font-weight:600">Vitamin D:</span> 50,000 IU every Sunday for 10 weeks then maintenance<br>
+      <span style="color:#EDF0F5;font-weight:600">Creatine 10g/day:</span> 5g morning + 5g post workout (muscle + brain)<br>
+      <span style="color:#EDF0F5;font-weight:600">Water:</span> 4L daily minimum<br>
+      <span style="color:#EDF0F5;font-weight:600">After 10 weeks:</span> reassess body composition then decide next phase
+    </div>
+  </div>`;
+}
+
+// ─── MAIN BUILD ───────────────────────────────────────────────────
+function buildApp(){
+  const tabs=[
+    {id:'overview',label:'Overview'},
+    {id:'workout',label:'Workout'},
+    {id:'nutrition',label:'Nutrition'},
+    {id:'grocery',label:'Grocery'},
+    {id:'progression',label:'Progression'},
+  ];
+
+  let content='';
+  if(currentTab==='overview')content=buildOverview();
+  else if(currentTab==='workout')content=buildWorkout();
+  else if(currentTab==='nutrition')content=buildNutrition();
+  else if(currentTab==='grocery')content=buildGrocery();
+  else if(currentTab==='progression')content=buildProgression();
+
+  return `
+  <div style="background:#12151C;border-bottom:1px solid #242836;padding:16px 16px 0;position:sticky;top:0;z-index:10">
+    <div class="flex center gap10" style="margin-bottom:12px">
+      <div style="width:32px;height:32px;border-radius:9px;background:#C8F135;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">⚡</div>
+      <div>
+        <div style="font-size:14px;font-weight:700;letter-spacing:-0.02em">Ahmed · Lean Muscle Gain</div>
+        <div style="font-size:10px;color:#7A8499">10 weeks · 2,439 kcal · 185g protein</div>
+      </div>
+    </div>
+    <div class="flex" style="overflow-x:auto">
+      ${tabs.map(t=>`<button class="tab-btn${currentTab===t.id?' active':''}" onclick="setTab('${t.id}')">${t.label}</button>`).join('')}
+    </div>
+  </div>
+  <div style="padding:16px">${content}</div>`;
+}
+
+// ─── EVENT HANDLERS ───────────────────────────────────────────────
+function attachEvents(){}
+
+function setTab(t){currentTab=t;render()}
+function setDay(d){currentDay=d;render()}
+function setWeek(w){currentWeek=w;render()}
+function toggleEx(d,e){
+  const k=`${d}_${e}`;
+  expandedEx[k]=!expandedEx[k];
+  render();
+}
+function setMode(d,e,w,m){
+  setLog(modeKey(d,e,w),m);
+  render();
+}
+function saveLog(key,val){
+  setLog(key,val);
+  // NO render() call - this is the key fix
+}
+function setActiveMetric(m){activeMetric=m;render()}
+function toggleHistory(){showHistory=!showHistory;render()}
+function startScaleEdit(){
+  scaleDraft={...getCurrentVals()};
+  scaleEditing=true;
+  render();
+}
+function cancelScaleEdit(){scaleEditing=false;render()}
+function saveScaleEntry(){
+  const vals={};
+  SCALE_METRICS.forEach(s=>{
+    const el=document.getElementById('draft_'+s.key);
+    vals[s.key]=el?el.value:scaleDraft[s.key];
+  });
+  const entry={
+    date:new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'}),
+    timestamp:Date.now(),
+    vals
+  };
+  scaleHistory=[...scaleHistory,entry];
+  saveJ(SK,scaleHistory);
+  scaleEditing=false;
+  render();
+}
+function toggleMealExpand(id){expandedMeals[id]=!expandedMeals[id];render()}
+function toggleMeal(id){toggleMealFn(id)}
+function toggleSupp(id){toggleSuppFn(id)}
+function toggleVitDose(){toggleVitD()}
+
+// ─── INIT ─────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
